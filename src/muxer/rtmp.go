@@ -170,11 +170,22 @@ func New(gCtx global.Context) <-chan struct{} {
 	}()
 	fst := fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
-			// defer func() {
-			// 	if err := recover(); err != nil {
-			// 		logrus.Error("panic: ", err)
-			// 	}
-			// }()
+			start := time.Now()
+			defer func() {
+				l := logrus.WithFields(logrus.Fields{
+					"status":   ctx.Response.StatusCode(),
+					"path":     utils.B2S(ctx.Request.RequestURI()),
+					"duration": time.Since(start) / time.Millisecond,
+					"method":   utils.B2S(ctx.Method()),
+				})
+				if err := recover(); err != nil {
+					l.Error("panic in handler: ", err)
+				} else {
+					l.Info("")
+				}
+			}()
+
+			ctx.Response.Header.Set("X-Muxer-Pod-Name", gCtx.Config().Pod.Name)
 
 			splits := strings.SplitN(utils.B2S(ctx.Path()), "/", 4)
 
@@ -186,7 +197,7 @@ func New(gCtx global.Context) <-chan struct{} {
 			variant := splits[2]
 			segmentName := splits[3]
 			if !strings.HasSuffix(segmentName, ".ts") {
-				if strings.HasSuffix(segmentName, ".m3u8") {
+				if segmentName == "playlist.m3u8" {
 					val, err := gCtx.Inst().Redis.Get(ctx, fmt.Sprintf("live-playlists:%s:%s", streamID.Hex(), variant))
 					if err != nil {
 						logrus.Error(err)
