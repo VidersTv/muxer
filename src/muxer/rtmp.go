@@ -70,6 +70,20 @@ func New(gCtx global.Context) <-chan struct{} {
 
 			return false
 		},
+		OnStreamClose: func(info av.Info, addr net.Addr) {
+			mtx.Lock()
+			stream := mp[info.ID]
+			mtx.Unlock()
+			go func() {
+				<-time.After(time.Second * 60)
+				mtx.Lock()
+				delete(mp, info.ID)
+				if idMp[fmt.Sprintf("%s-%s", stream.MuxerPayload.StreamID.Hex(), stream.MuxerPayload.Variant.Name)] == info.ID {
+					delete(idMp, fmt.Sprintf("%s-%s", stream.MuxerPayload.StreamID.Hex(), stream.MuxerPayload.Variant.Name))
+				}
+				mtx.Unlock()
+			}()
+		},
 		HandlePublisher: func(info av.Info, reader av.ReadCloser) {
 			mtx.Lock()
 			stream := mp[info.ID]
@@ -93,11 +107,13 @@ func New(gCtx global.Context) <-chan struct{} {
 				defer reader.Close()
 				defer cancel()
 				events := stream.Cache.NewItems()
+				done := stream.Cache.Wait()
 				buf := bytes.NewBuffer(nil)
 				for {
 					select {
+					case <-done:
+						logrus.Error("done")
 					case <-events:
-					case <-ctx.Done():
 					}
 					buf.Reset()
 					items := stream.Cache.Items()
@@ -131,13 +147,13 @@ func New(gCtx global.Context) <-chan struct{} {
 					}
 
 					if stream.Cache.Done() {
-						_, _ = buf.WriteString("#EXT-X-ENDLIST")
+						_, _ = buf.WriteString("#EXT-X-ENDLIST\n")
 					}
 
 					pipe := gCtx.Inst().Redis.RawClient().Pipeline()
 
 					pipe.SetEX(gCtx, fmt.Sprintf("live-playlists:%s:%s", stream.MuxerPayload.StreamID.Hex(), stream.MuxerPayload.Variant.Name), buf.String(), time.Minute*2)
-					pipe.SetEX(gCtx, fmt.Sprintf("live-playlists:%s:%s:ip", stream.MuxerPayload.StreamID.Hex(), stream.MuxerPayload.Variant.Name), gCtx.Config().Pod.IP, time.Minute*2)
+					pipe.SetEX(gCtx, fmt.Sprintf("live-playlists:%s:%s:ip", stream.MuxerPayload.StreamID.Hex(), stream.MuxerPayload.Variant.Name), fmt.Sprintf("%s:%d", gCtx.Config().Pod.IP, gCtx.Config().Pod.AdvertisePort), time.Minute*2)
 
 					if _, err := pipe.Exec(gCtx); err != nil {
 						localLog.Error("failed to set playlist in redis: ", err)

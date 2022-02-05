@@ -23,6 +23,9 @@ rtmp:
   muxer:
     url: muxer.viders.svc.cluster.local:1935
 
+pod:
+  advertise_port: 80
+
 monitoring:
   enabled: true
   bind: :9100

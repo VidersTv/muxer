@@ -112,8 +112,9 @@ type Config struct {
 	} `mapstructure:"rtmp" json:"rtmp"`
 
 	Pod struct {
-		Name string `mapstructure:"name" json:"name"`
-		IP   string `mapstructure:"ip" json:"ip"`
+		Name          string `mapstructure:"name" json:"name"`
+		IP            string `mapstructure:"ip" json:"ip"`
+		AdvertisePort int    `mapstructure:"advertise_port" json:"advertise_port"`
 	} `mapstructure:"pod" json:"pod"`
 
 	Mongo struct {
