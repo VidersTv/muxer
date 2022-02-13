@@ -9,7 +9,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
 	github.com/valyala/fasthttp v1.33.0
-	github.com/viderstv/common v0.0.0-20220205173511-aa709a6c3515
+	github.com/viderstv/common v0.0.0-20220213002707-d404fe05c78c
 	go.mongodb.org/mongo-driver v1.8.3
 )
 

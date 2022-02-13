@@ -402,8 +402,8 @@ github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyC
 github.com/valyala/fasthttp v1.33.0 h1:mHBKd98J5NcXuBddgjvim1i3kWzlng1SzLhrnBOU9g8=
 github.com/valyala/fasthttp v1.33.0/go.mod h1:KJRK/MXx0J+yd0c5hlR+s1tIHD72sniU8ZJjl97LIw4=
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
-github.com/viderstv/common v0.0.0-20220205173511-aa709a6c3515 h1:9k3d3nKhgWGauxV/4H82YOHwhskngd/tPIvP7pZmUvk=
-github.com/viderstv/common v0.0.0-20220205173511-aa709a6c3515/go.mod h1:kRkrKDKKHSnwSo9PO4iJKoAmZbdLzBRqa+S0usSo2t8=
+github.com/viderstv/common v0.0.0-20220213002707-d404fe05c78c h1:ayzforUs2Co/Pii+cp0O7W1GOcy3q9B51YMj5Etudpc=
+github.com/viderstv/common v0.0.0-20220213002707-d404fe05c78c/go.mod h1:kRkrKDKKHSnwSo9PO4iJKoAmZbdLzBRqa+S0usSo2t8=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=

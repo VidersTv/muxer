@@ -74,7 +74,15 @@ func New(gCtx global.Context) <-chan struct{} {
 			mtx.Lock()
 			stream := mp[info.ID]
 			mtx.Unlock()
+
 			go func() {
+				<-time.After(time.Second * 15)
+				set, _ := gCtx.Inst().Redis.SetNX(gCtx, fmt.Sprintf("teardown-stream:%s", stream.MuxerPayload.UserID.Hex()), "1", time.Second*5)
+				if set {
+					if err := gCtx.Inst().Redis.Publish(gCtx, fmt.Sprintf("gql-subs:users:%s", stream.MuxerPayload.UserID.Hex()), "1"); err != nil {
+						logrus.Error("failed to publish live update: ", err)
+					}
+				}
 				<-time.After(time.Second * 60)
 				mtx.Lock()
 				delete(mp, info.ID)
@@ -102,6 +110,13 @@ func New(gCtx global.Context) <-chan struct{} {
 
 			handler.HandleReader(reader)
 			handler.HandleWriter(hlsHandler)
+
+			set, _ := gCtx.Inst().Redis.SetNX(gCtx, fmt.Sprintf("create-stream:%s", stream.MuxerPayload.UserID.Hex()), "1", time.Second*5)
+			if set {
+				if err := gCtx.Inst().Redis.Publish(ctx, fmt.Sprintf("gql-subs:users:%s", stream.MuxerPayload.UserID.Hex()), "1"); err != nil {
+					logrus.Error("failed to publish live update: ", err)
+				}
+			}
 
 			go func() {
 				defer reader.Close()
